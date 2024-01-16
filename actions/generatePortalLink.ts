@@ -5,7 +5,7 @@ import { headers } from 'next/headers'
 import { getServerSession } from 'next-auth'
 import Stripe from 'stripe'
 
-import { adminDb } from '@/firebase-admin'
+import { adminDB } from '@/firebase-admin'
 import { authOptions } from '@/auth'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -27,7 +27,7 @@ export async function generatePortalLink() {
       ? `http://${host}/register`
       : `https://${host}/register`
 
-  const doc = await adminDb.collection('customers').doc(id).get()
+  const doc = await adminDB.collection('customers').doc(id).get()
 
   if (!doc.data)
     return console.error('No customer record found with userId: ', id)
