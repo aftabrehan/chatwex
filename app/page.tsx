@@ -1,11 +1,17 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
+import { useTheme } from 'next-themes'
 
-import DemoGif from '@/images/landingPage/demo.jpeg'
+import DemoDark from '@/images/landingPage/demo-dark.png'
+import DemoLight from '@/images/landingPage/demo-light.png'
 
 export default function Home() {
+  const { resolvedTheme } = useTheme()
+
   return (
-    <main className="">
+    <main>
       <div className="realtive isolate pt-14 dark:bg-gray-900">
         <div
           className="absolute inset-x-0 top-28 -z-10 transform-gpu overflow-hidden blur-3xl"
@@ -51,12 +57,15 @@ export default function Home() {
             <div className="mt-16 flow-root sm:mt-24">
               <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                 <Image
-                  unoptimized
-                  src={DemoGif}
+                  src={resolvedTheme === 'dark' ? DemoDark : DemoLight}
                   alt="App screenshot"
                   width={2434}
                   height={1442}
-                  className="rounded-md shadow-2xl ring-1 ring-gray-900/10"
+                  className={`rounded-md shadow-2xl ring-1 ring-gray-900/10 ${
+                    (!resolvedTheme || resolvedTheme === 'system') &&
+                    'opacity-0'
+                  }`}
+                  priority
                 />
               </div>
             </div>
