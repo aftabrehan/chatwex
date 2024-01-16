@@ -1,8 +1,10 @@
-import { FirestoreAdapter } from '@auth/firebase-adapter'
 import { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
-import { adminAuth, adminDb } from './firebase-admin'
 
+import { adminAuth, adminDB } from './firebase-admin'
+import { FirestoreAdapter } from '@auth/firebase-adapter'
+
+// @ts-ignore
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -13,7 +15,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     session: async ({ session, token }) => {
       if (session?.user) {
-        if (token?.sub) {
+        if (token.sub) {
           session.user.id = token.sub
 
           const firebaseToken = await adminAuth.createCustomToken(token.sub)
@@ -22,8 +24,7 @@ export const authOptions: NextAuthOptions = {
       }
       return session
     },
-
-    jwt: async ({ token, user }) => {
+    jwt: async ({ user, token }) => {
       if (user) {
         token.sub = user.id
       }
@@ -33,36 +34,6 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
   },
-  adapter: FirestoreAdapter(adminDb),
-  // providers: [
-  //     Providers.GitHub({
-  //     clientId: process.env.GITHUB_ID,
-  //     clientSecret: process.env.GITHUB_SECRET
-  //     })
-  // ],
-  // database: process.env.DATABASE_URL,
-  // session: {
-  //     jwt: true
-  // },
-  // jwt: {
-  //     secret: process.env.JWT_SECRET
-  // },
-  // callbacks: {
-  //     async signIn(user, account, profile) {
-  //     if (account.provider === 'github') {
-  //         const res = await fetch('https://api.github.com/user/emails', {
-  //         headers: {
-  //             Authorization: `token ${account.accessToken}`
-  //         }
-  //         })
-  //         const emails = await res.json()
-  //         const primaryEmail = emails.find(email => email.primary)?.email
-  //         if (!primaryEmail) {
-  //         return false
-  //         }
-  //         user.email = primaryEmail
-  //     }
-  //     return true
-  //     }
-  // }
+  // @ts-ignore
+  adapter: FirestoreAdapter(adminDB),
 } satisfies NextAuthOptions
