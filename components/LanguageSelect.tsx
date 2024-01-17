@@ -32,7 +32,7 @@ function LanguageSelect() {
   const isPro = subscription?.status === 'active'
 
   const pathName = usePathname()
-  const isChatPage = pathName.includes('/chat')
+  const isChatPage = pathName?.includes('/chat')
 
   return (
     isChatPage && (

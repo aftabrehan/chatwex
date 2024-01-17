@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: { serverActions: true },
-  images: { domains: ['github.com', 'lh3.googleusercontent.com'] },
+  images: {
+    domains: ['github.com', 'lh3.googleusercontent.com', 'images.unsplash.com'],
+  },
   env: {
     FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
     FIREBASE_AUTH_DOMAIN: process.env.FIREBASE_AUTH_DOMAIN,

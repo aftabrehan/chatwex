@@ -24,9 +24,12 @@ function UserButton({ session }: { session: Session | null }) {
 
   if (!session)
     return (
-      <Button variant="outline" onClick={() => signIn()}>
-        Sign In
-      </Button>
+      <>
+        <Button variant="outline" onClick={() => signIn('credentials')}>
+          Demo Login
+        </Button>
+        <Button onClick={() => signIn('google')}>Sign In</Button>
+      </>
     )
 
   return (
@@ -58,7 +61,7 @@ function UserButton({ session }: { session: Session | null }) {
             </>
           )}
 
-          <DropdownMenuItem onClick={() => signOut()}>
+          <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
             Sign Out
           </DropdownMenuItem>
         </DropdownMenuContent>

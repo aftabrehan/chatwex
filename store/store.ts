@@ -3,6 +3,7 @@ import { Subscription } from '@/types/Subscription'
 
 export type LanguagesSupported =
   | 'en'
+  | 'ur'
   | 'de'
   | 'fr'
   | 'es'
@@ -10,11 +11,11 @@ export type LanguagesSupported =
   | 'ja'
   | 'la'
   | 'ru'
-  | 'ur'
   | 'ar'
 
 export const LanguagesSupportedMap: Record<LanguagesSupported, string> = {
   en: 'English',
+  ur: 'Urdu',
   de: 'German',
   fr: 'French',
   es: 'Spanish',
@@ -22,7 +23,6 @@ export const LanguagesSupportedMap: Record<LanguagesSupported, string> = {
   ja: 'Japanese',
   la: 'Latin',
   ru: 'Russian',
-  ur: 'Urdu',
   ar: 'Arabic',
 }
 
