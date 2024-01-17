@@ -61,10 +61,7 @@ export default function Home() {
                   alt="App screenshot"
                   width={2434}
                   height={1442}
-                  className={`rounded-md shadow-2xl ring-1 ring-gray-900/10 ${
-                    (!resolvedTheme || resolvedTheme === 'system') &&
-                    'opacity-0'
-                  }`}
+                  className="rounded-md shadow-2xl ring-1 ring-gray-900/10"
                   priority
                 />
               </div>
