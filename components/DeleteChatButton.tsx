@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { Trash2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -60,7 +61,10 @@ function DeleteChatButton({ chatId }: { chatId: string }) {
     session?.user.id === adminId && (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="destructive">Delete Chat</Button>
+          <Button variant="destructive">
+            {/* Delete Chat */}
+            <Trash2 />
+          </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

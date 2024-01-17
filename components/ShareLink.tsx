@@ -1,7 +1,7 @@
 'use client'
 
 import { Dispatch, SetStateAction } from 'react'
-import { Copy } from 'lucide-react'
+import { Copy, Share2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -58,8 +58,7 @@ function ShareLink({
     >
       <DialogTrigger asChild>
         <Button variant="outline">
-          <Copy className="mr-2" />
-          Share Link
+          <Share2 className="mr-2" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

@@ -37,7 +37,7 @@ function LanguageSelect() {
   return (
     isChatPage && (
       <Select onValueChange={(value: LanguagesSupported) => setLanguage(value)}>
-        <SelectTrigger className="w-[150px] text-black dark:text-white">
+        <SelectTrigger className="w-[100px] sm:w-[150px] text-black dark:text-white">
           <SelectValue placeholder={LanguagesSupportedMap[language]} />
         </SelectTrigger>
 

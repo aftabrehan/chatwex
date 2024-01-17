@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Session } from 'next-auth'
 import { signIn, signOut } from 'next-auth/react'
 import { StarIcon } from 'lucide-react'
@@ -20,17 +21,31 @@ import ManageAccountButton from './ManageAccountButton'
 import { useSubscriptionStore } from '@/store/store'
 
 function UserButton({ session }: { session: Session | null }) {
+  const [isLoading, setIsLoading] = useState({
+    credentials: false,
+    google: false,
+  })
+
   const subscription = useSubscriptionStore(state => state.subscription)
 
-  if (!session)
+  if (!session) {
+    const handleLogin = async (type: 'credentials' | 'google') => {
+      setIsLoading({ ...isLoading, [type]: true })
+      await signIn(type)
+      setIsLoading({ ...isLoading, [type]: false })
+    }
+
     return (
       <>
-        <Button variant="outline" onClick={() => signIn('credentials')}>
-          Demo Login
+        <Button variant="outline" onClick={() => handleLogin('credentials')}>
+          {isLoading.credentials ? <LoadingSpinner /> : 'Demo Login'}
         </Button>
-        <Button onClick={() => signIn('google')}>Sign In</Button>
+        <Button onClick={() => handleLogin('google')}>
+          {isLoading.google ? <LoadingSpinner /> : 'Sign In'}
+        </Button>
       </>
     )
+  }
 
   return (
     session && (

@@ -23,6 +23,14 @@ function CheckoutButton() {
 
     setLoading(true)
 
+    if (session?.user.id === 'demo_user_id') {
+      alert(
+        'Feel free to sign out of the demo account and create a new one. After that, you can easily proceed with the upgrade.'
+      )
+      setLoading(false)
+      return
+    }
+
     //push a document into firestore db
     const docRef = await addDoc(
       collection(db, 'customers', session.user.id, 'checkout_sessions'),
@@ -64,7 +72,7 @@ function CheckoutButton() {
         ) : isLoadingSubscription || loading ? (
           <LoadingSpinner />
         ) : (
-          <button onClick={() => createCheckoutSession()}>
+          <button onClick={createCheckoutSession}>
             {session?.user.id ? 'Upgrade' : 'Sign Up'}
           </button>
         )}

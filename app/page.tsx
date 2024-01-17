@@ -29,7 +29,7 @@ export default function Home() {
         <div className="py-12 sm:py-20 lg:pb-40">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl text-center">
-              <h1 className="text-4l font-bold tracking-tight sm:text-6xl">
+              <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
                 Chat with Anyone, anywhere!
               </h1>
               <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">

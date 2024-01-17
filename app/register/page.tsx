@@ -12,7 +12,7 @@ async function Register() {
       <div className="mx-auto max-w-7xl px-6 pb-12 pt-16 text-white text-center lg:px-8">
         <div className="mx-auto max-w-4xl">
           <p className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
-            Let&quot;s handle your Membership{' '}
+            Let&apos;s handle your Membership{' '}
             {session?.user?.name?.split(' ')?.[0]}!
           </p>
         </div>

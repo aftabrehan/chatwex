@@ -1,7 +1,9 @@
-import LogoImage from '@logos/logo.svg'
-import Link from 'next/link'
-import { AspectRatio } from './ui/aspect-ratio'
 import Image from 'next/image'
+import Link from 'next/link'
+
+import { AspectRatio } from './ui/aspect-ratio'
+
+import LogoImage from '@logos/logo.svg'
 
 function Logo() {
   return (

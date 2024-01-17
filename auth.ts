@@ -20,7 +20,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize() {
         const user = {
-          id: '1',
+          id: 'demo_user_id',
           name: 'John Doe',
           email: 'johndoe@example.com',
           image:
