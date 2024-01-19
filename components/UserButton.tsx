@@ -31,7 +31,7 @@ function UserButton({ session }: { session: Session | null }) {
   if (!session) {
     const handleLogin = async (type: 'credentials' | 'google') => {
       setIsLoading({ ...isLoading, [type]: true })
-      await signIn(type)
+      await signIn(type, { password: process.env.DEMO_USER_PASSWORD })
       setIsLoading({ ...isLoading, [type]: false })
     }
 

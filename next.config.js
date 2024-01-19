@@ -5,6 +5,7 @@ const nextConfig = {
     domains: ['github.com', 'lh3.googleusercontent.com', 'images.unsplash.com'],
   },
   env: {
+    DEMO_USER_PASSWORD: process.env.DEMO_USER_PASSWORD,
     FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
     FIREBASE_AUTH_DOMAIN: process.env.FIREBASE_AUTH_DOMAIN,
     FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,

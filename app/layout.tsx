@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
+
 import Header from '@/components/Header'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import ClientProviders from '@/components/ClientProviders'
 import FirebaseAuthProvider from '@/components/FirebaseAuthProvider'
 import SubscriptionProvider from '@/components/SubscriptionProvider'
 import { Toaster } from '@/components/ui/toaster'
+
+import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Chatwex',
