@@ -79,3 +79,9 @@ error with both Turbopack and Webpack production builds; this does not reproduce
 in the user's regular browser. Google OAuth, new-message translation, invitations,
 and a complete Stripe test checkout still require functional verification with
 appropriate test accounts and the configured cloud extensions.
+
+The build also accepts the legacy Vercel `FIREBASE_*` browser configuration and
+`STRIPE_PRO_MEMBERSHIP_PRODUCT_ID` names through an explicit public-only mapping
+in `next.config.js`. Explicit `NEXT_PUBLIC_*` values take precedence. Service-account
+keys, OAuth secrets, Stripe secrets, and session/demo credentials are excluded
+from this mapping. This supports existing deployments during the env-name migration.
