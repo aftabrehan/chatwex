@@ -29,11 +29,10 @@ function ShareLink({
   setIsOpen: Dispatch<SetStateAction<boolean>>
 }) {
   const { toast } = useToast()
-  const host = window.location.host
   const linkToChat =
-    process.env.NODE_ENV === 'development'
-      ? `http://${host}/chat/${chatId}`
-      : `https://${host}/chat/${chatId}`
+    typeof window === 'undefined'
+      ? ''
+      : `${window.location.origin}/chat/${encodeURIComponent(chatId)}`
 
   async function copyToClipboard() {
     try {
@@ -54,10 +53,10 @@ function ShareLink({
     <Dialog
       open={isOpen}
       defaultOpen={isOpen}
-      onOpenChange={open => setIsOpen(open)}
+      onOpenChange={(open) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" aria-label="Share chat link">
           <Share2 className="mr-2" />
         </Button>
       </DialogTrigger>

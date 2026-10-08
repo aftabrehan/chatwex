@@ -56,7 +56,7 @@ export interface Price {
   /**
    * Any additional properties
    */
-  [propName: string]: any
+  [propName: string]: unknown
 }
 
 export interface Product {
@@ -87,14 +87,14 @@ export interface Product {
   /**
    * Any additional properties
    */
-  [propName: string]: any
+  [propName: string]: unknown
 }
 
 export interface TaxRate extends Stripe.TaxRate {
   /**
    * Any additional properties
    */
-  [propName: string]: any
+  [propName: string]: unknown
 }
 
 export interface Subscription {

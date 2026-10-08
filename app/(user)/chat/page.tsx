@@ -1,12 +1,11 @@
 import ChatList from '@/components/ChatList'
 import ChatPermissionError from '@/components/ChatPermissionError'
-
-type Props = {
-  params: {}
-  searchParams: { error: string }
-}
-
-function ChatsPage({ searchParams: { error } }: Props) {
+export default async function ChatsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>
+}) {
+  const { error } = await searchParams
   return (
     <div>
       {error && (
@@ -18,5 +17,3 @@ function ChatsPage({ searchParams: { error } }: Props) {
     </div>
   )
 }
-
-export default ChatsPage

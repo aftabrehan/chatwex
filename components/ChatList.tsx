@@ -1,24 +1,21 @@
 import { getServerSession } from 'next-auth'
-import { getDocs } from 'firebase/firestore'
-
+import { redirect } from 'next/navigation'
 import ChatListRows from './ChatListRows'
-
 import { authOptions } from '@/auth'
-import { chatMembersCollectionGroupRef } from '@/lib/converters/ChatMembers'
+import { adminDB } from '@/firebase-admin'
+import type { ChatMembers } from '@/lib/converters/ChatMembers'
 
-async function ChatList() {
+export default async function ChatList() {
   const session = await getServerSession(authOptions)
-
-  const chatsSnapshot = await getDocs(
-    chatMembersCollectionGroupRef(session?.user.id!)
-  )
-
-  const initialChats = chatsSnapshot.docs.map(doc => ({
+  if (!session?.user.id) redirect('/login')
+  const snapshot = await adminDB
+    .collectionGroup('members')
+    .where('userId', '==', session.user.id)
+    .get()
+  const initialChats = snapshot.docs.map((doc) => ({
     ...doc.data(),
+    userId: doc.id,
     timestamp: null,
-  }))
-
+  })) as ChatMembers[]
   return <ChatListRows initialChats={initialChats} />
 }
-
-export default ChatList

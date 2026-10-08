@@ -1,28 +1,33 @@
 import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
 import { adminDB } from '@/firebase-admin'
+import { authOptions } from '@/auth'
 
 export async function DELETE(req: Request) {
-  const { chatId } = await req.json()
-
-  const ref = adminDB.collection('chats').doc(chatId)
-
-  const bulkWritter = adminDB.bulkWriter()
-  const MAX_RETRY_ATTEMPTS = 5
-
-  bulkWritter.onWriteError(error => {
-    if (error.failedAttempts < MAX_RETRY_ATTEMPTS) {
-      return true
-    } else {
-      console.log('Failed write at document: ', error.documentRef.path)
-      return false
-    }
-  })
-
+  const session = await getServerSession(authOptions)
+  if (!session?.user.id)
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const origin = req.headers.get('origin')
+  if (origin && origin !== new URL(req.url).origin)
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  let chatId: unknown
   try {
-    await adminDB.recursiveDelete(ref, bulkWritter)
-    return NextResponse.json({ success: true }, { status: 200 })
+    ;({ chatId } = await req.json())
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+  if (typeof chatId !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(chatId)) {
+    return NextResponse.json({ error: 'Invalid chat ID' }, { status: 400 })
+  }
+  try {
+    const ref = adminDB.collection('chats').doc(chatId)
+    const member = await ref.collection('members').doc(session.user.id).get()
+    if (!member.exists || member.data()?.isAdmin !== true)
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    await adminDB.recursiveDelete(ref)
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Promise rejected: ', error)
-    return NextResponse.json({ succes: false }, { status: 500 })
+    console.error('Chat deletion failed:', error)
+    return NextResponse.json({ success: false }, { status: 500 })
   }
 }

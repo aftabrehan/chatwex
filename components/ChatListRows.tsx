@@ -1,5 +1,7 @@
 'use client'
 
+import { useFirebaseReady } from '@/components/FirebaseAuthProvider'
+
 import { useSession } from 'next-auth/react'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { MessageSquare } from 'lucide-react'
@@ -13,14 +15,19 @@ import {
 } from '@/lib/converters/ChatMembers'
 
 function ChatListRows({ initialChats }: { initialChats: ChatMembers[] }) {
+  const firebaseReady = useFirebaseReady()
   const { data: session } = useSession()
 
   const [members] = useCollectionData<ChatMembers>(
-    session && chatMembersCollectionGroupRef(session?.user.id!),
+    firebaseReady && session?.user.id
+      ? chatMembersCollectionGroupRef(session.user.id)
+      : undefined,
     { initialValue: initialChats }
   )
 
-  if (members?.length === 0) {
+  const chats = members ?? initialChats
+
+  if (chats.length === 0) {
     return (
       <div className="flex flex-col justify-center items-center pt-40 space-y-2">
         <MessageSquare className="h-10 w-10" />
@@ -35,7 +42,7 @@ function ChatListRows({ initialChats }: { initialChats: ChatMembers[] }) {
 
   return (
     <div>
-      {members?.map((member, i) => (
+      {chats.map((member) => (
         <ChatListRow key={member.chatId} chatId={member.chatId} />
       ))}
     </div>

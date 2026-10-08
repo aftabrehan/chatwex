@@ -1,5 +1,7 @@
 'use client'
 
+import { useFirebaseReady } from '@/components/FirebaseAuthProvider'
+
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
@@ -25,10 +27,11 @@ import { useToast } from './ui/use-toast'
 const formSchema = z.object({ input: z.string().max(1000) })
 
 function ChatInput({ chatId }: { chatId: string }) {
+  const firebaseReady = useFirebaseReady()
   const { data: session } = useSession()
   const router = useRouter()
   const { toast } = useToast()
-  const subscription = useSubscriptionStore(state => state.subscription)
+  const subscription = useSubscriptionStore((state) => state.subscription)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,49 +40,57 @@ function ChatInput({ chatId }: { chatId: string }) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const inputCopy = values.input.trim()
-    form.reset()
 
     if (inputCopy.length === 0) return
-    if (!session?.user) return
+    if (!firebaseReady || !session?.user) return
 
     // Check if PRO to see limit no of chats that can be created
-    const messages = (await getDocs(limitedMessagesRef(chatId))).docs.map(doc =>
-      doc.data()
-    ).length
+    try {
+      const messages = (await getDocs(limitedMessagesRef(chatId))).docs.map(
+        (doc) => doc.data()
+      ).length
 
-    const isPro = subscription?.status === 'active'
+      const isPro = subscription?.status === 'active'
 
-    if (!isPro && messages >= 20) {
-      toast({
-        title: 'Free plan limit exceeded',
-        description:
-          "You've exceeded the FREE plan limit of 20 messages per chat. Upgrade to PRO for unlimited chat messages!",
-        variant: 'destructive',
-        action: (
-          <ToastAction
-            altText="Upgrade"
-            onClick={() => router.push('/register')}
-          >
-            Upgrade to PRO
-          </ToastAction>
-        ),
+      if (!isPro && messages >= 20) {
+        toast({
+          title: 'Free plan limit exceeded',
+          description:
+            "You've exceeded the FREE plan limit of 20 messages per chat. Upgrade to PRO for unlimited chat messages!",
+          variant: 'destructive',
+          action: (
+            <ToastAction
+              altText="Upgrade"
+              onClick={() => router.push('/register')}
+            >
+              Upgrade to PRO
+            </ToastAction>
+          ),
+        })
+
+        return
+      }
+
+      const userToStore: User = {
+        id: session.user.id!,
+        name: session.user.name!,
+        email: session.user.email!,
+        image: session.user.image || '',
+      }
+
+      await addDoc(messagesRef(chatId), {
+        input: inputCopy,
+        timestamp: serverTimestamp(),
+        user: userToStore,
       })
-
-      return
+      form.reset()
+    } catch {
+      toast({
+        title: 'Message not sent',
+        description: 'Please try again. Your message has been kept.',
+        variant: 'destructive',
+      })
     }
-
-    const userToStore: User = {
-      id: session.user.id!,
-      name: session.user.name!,
-      email: session.user.email!,
-      image: session.user.image || '',
-    }
-
-    addDoc(messagesRef(chatId), {
-      input: inputCopy,
-      timestamp: serverTimestamp(),
-      user: userToStore,
-    })
   }
 
   return (
@@ -97,6 +108,7 @@ function ChatInput({ chatId }: { chatId: string }) {
                 <FormControl>
                   <Input
                     className="border-none bg-transparent dark:placeholder:text-white/70"
+                    aria-label="Message"
                     placeholder="Enter message in ANY language..."
                     {...field}
                   />
@@ -105,7 +117,11 @@ function ChatInput({ chatId }: { chatId: string }) {
               </FormItem>
             )}
           />
-          <Button type="submit" className="bg-violet-600 text-white">
+          <Button
+            disabled={form.formState.isSubmitting || !firebaseReady}
+            type="submit"
+            className="bg-violet-600 text-white"
+          >
             Send
           </Button>
         </form>

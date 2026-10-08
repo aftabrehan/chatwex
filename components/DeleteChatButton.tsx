@@ -36,7 +36,8 @@ function DeleteChatButton({ chatId }: { chatId: string }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chatId: chatId }),
     })
-      .then(() => {
+      .then((response) => {
+        if (!response.ok) throw new Error('Unable to delete chat')
         toast({
           title: 'Success',
           description: 'Your chat has been deleted!',
@@ -45,7 +46,7 @@ function DeleteChatButton({ chatId }: { chatId: string }) {
         })
         router.replace(`/chat`)
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err.message)
 
         toast({
@@ -61,7 +62,7 @@ function DeleteChatButton({ chatId }: { chatId: string }) {
     session?.user.id === adminId && (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="destructive">
+          <Button variant="destructive" aria-label="Delete chat">
             {/* Delete Chat */}
             <Trash2 />
           </Button>

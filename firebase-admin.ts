@@ -1,26 +1,17 @@
-import admin from 'firebase-admin'
-import { initFirestore } from '@auth/firebase-adapter'
+import 'server-only'
+import { requireEnv } from '@/lib/env'
+import { cert, getApps, initializeApp } from 'firebase-admin/app'
+import { getAuth } from 'firebase-admin/auth'
+import { getFirestore } from 'firebase-admin/firestore'
 
-let app
-
-if (!admin.apps.length) {
-  app = admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+const app =
+  getApps()[0] ??
+  initializeApp({
+    credential: cert({
+      projectId: requireEnv('FIREBASE_PROJECT_ID'),
+      clientEmail: requireEnv('FIREBASE_CLIENT_EMAIL'),
+      privateKey: requireEnv('FIREBASE_PRIVATE_KEY').replace(/\\n/g, '\n'),
     }),
   })
-}
-
-const adminDB = initFirestore({
-  credential: admin.credential.cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  }),
-})
-
-const adminAuth = admin.auth(app)
-
-export { adminDB, adminAuth }
+export const adminDB = getFirestore(app)
+export const adminAuth = getAuth(app)

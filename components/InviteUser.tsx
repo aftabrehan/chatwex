@@ -1,5 +1,7 @@
 'use client'
 
+import { useFirebaseReady } from '@/components/FirebaseAuthProvider'
+
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -34,10 +36,11 @@ const formSchema = z.object({
 })
 
 function InviteUser({ chatId }: { chatId: string }) {
+  const firebaseReady = useFirebaseReady()
   const { data: session } = useSession()
   const { toast } = useToast()
   const adminId = useAdminId({ chatId })
-  const subscription = useSubscriptionStore(state => state.subscription)
+  const subscription = useSubscriptionStore((state) => state.subscription)
   const router = useRouter()
 
   const [open, setOpen] = useState(false)
@@ -49,79 +52,88 @@ function InviteUser({ chatId }: { chatId: string }) {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!session?.user.id) return
+    if (!firebaseReady || !session?.user.id) return
 
     toast({
       title: 'Sending invite',
       description: 'Please wait while we send the invite...',
     })
 
-    const noOfUsersInChat = (await getDocs(chatMembersRef(chatId))).docs.map(
-      doc => doc.data()
-    ).length
+    try {
+      const noOfUsersInChat = (await getDocs(chatMembersRef(chatId))).docs.map(
+        (doc) => doc.data()
+      ).length
 
-    const isPro = subscription?.status === 'active'
+      const isPro = subscription?.status === 'active'
 
-    if (!isPro && noOfUsersInChat >= 2) {
-      return toast({
-        title: 'Free plan limit exceeded',
-        description:
-          'You have exceeded the limit of uses in a single chat for the FREE plan. Please upgrade to PRO to continue adding usees to the chats!',
+      if (!isPro && noOfUsersInChat >= 2) {
+        return toast({
+          title: 'Free plan limit exceeded',
+          description:
+            'You have exceeded the limit of uses in a single chat for the FREE plan. Please upgrade to PRO to continue adding usees to the chats!',
+          variant: 'destructive',
+          action: (
+            <ToastAction
+              altText="Upgrade"
+              onClick={() => router.push('/register')}
+            >
+              Upgrade to PRO
+            </ToastAction>
+          ),
+        })
+      }
+
+      const querySnapshot = await getDocs(getUserByEmailRef(values.email))
+
+      if (querySnapshot.empty) {
+        return toast({
+          title: 'User not found',
+          description:
+            'Please enter a valid email address of a registered user!',
+          variant: 'destructive',
+        })
+      } else {
+        const user = querySnapshot.docs[0].data()
+
+        await setDoc(addChatRef(chatId, user.id), {
+          userId: user.id!,
+          email: user.email!,
+          timestamp: serverTimestamp(),
+          chatId: chatId,
+          isAdmin: false,
+          image: user.image || '',
+        })
+          .then(() => {
+            toast({
+              title: 'Added to chat',
+              description: 'The user has beed added to the chat succesfully!',
+              className: 'bg-green-600 text-white',
+              duration: 3000,
+            })
+
+            setOpen(false)
+            setOpenInviteLink(true)
+          })
+          .catch(() => {
+            toast({
+              title: 'Error',
+              description:
+                'Whooops... there was an error adding the user to the chat!',
+              variant: 'destructive',
+            })
+
+            setOpen(false)
+          })
+      }
+
+      form.reset()
+    } catch {
+      toast({
+        title: 'Invite failed',
+        description: 'Unable to add this user. Please try again.',
         variant: 'destructive',
-        action: (
-          <ToastAction
-            altText="Upgrade"
-            onClick={() => router.push('/register')}
-          >
-            Upgrade to PRO
-          </ToastAction>
-        ),
       })
     }
-
-    const querySnapshot = await getDocs(getUserByEmailRef(values.email))
-
-    if (querySnapshot.empty) {
-      return toast({
-        title: 'User not found',
-        description: 'Please enter a valid email address of a registered user!',
-        variant: 'destructive',
-      })
-    } else {
-      const user = querySnapshot.docs[0].data()
-
-      await setDoc(addChatRef(chatId, user.id), {
-        userId: user.id!,
-        email: user.email!,
-        timestamp: serverTimestamp(),
-        chatId: chatId,
-        isAdmin: false,
-        image: user.image || '',
-      })
-        .then(() => {
-          toast({
-            title: 'Added to chat',
-            description: 'The user has beed added to the chat succesfully!',
-            className: 'bg-green-600 text-white',
-            duration: 3000,
-          })
-
-          setOpen(false)
-          setOpenInviteLink(true)
-        })
-        .catch(() => {
-          toast({
-            title: 'Error',
-            description:
-              'Whooops... there was an error adding the user to the chat!',
-            variant: 'destructive',
-          })
-
-          setOpen(false)
-        })
-    }
-
-    form.reset()
   }
 
   return (
@@ -161,7 +173,11 @@ function InviteUser({ chatId }: { chatId: string }) {
                     </FormItem>
                   )}
                 />
-                <Button className="ml-auto sm:w-fit w-full" type="submit">
+                <Button
+                  className="ml-auto sm:w-fit w-full"
+                  type="submit"
+                  disabled={form.formState.isSubmitting || !firebaseReady}
+                >
                   Add To Chat
                 </Button>
               </form>

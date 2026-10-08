@@ -1,5 +1,7 @@
 'use client'
 
+import { useFirebaseReady } from '@/components/FirebaseAuthProvider'
+
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 
 import LoadingSpinner from './LoadingSpinner'
@@ -10,8 +12,9 @@ import { ChatMembers, chatMembersRef } from '@/lib/converters/ChatMembers'
 import useAdminId from '@/hooks/useAdminId'
 
 function ChatMembersBadges({ chatId }: { chatId: string }) {
+  const firebaseReady = useFirebaseReady()
   const [members, loading] = useCollectionData<ChatMembers>(
-    chatMembersRef(chatId)
+    firebaseReady ? chatMembersRef(chatId) : undefined
   )
 
   const adminId = useAdminId({ chatId })
@@ -22,7 +25,7 @@ function ChatMembersBadges({ chatId }: { chatId: string }) {
     !loading && (
       <div className="p-2 border rounded-xl m-5">
         <div className="flex flex-wrap justify-center md:justify-start items-center gap-2 p-2">
-          {members?.map(member => (
+          {members?.map((member) => (
             <Badge
               variant="secondary"
               key={member.email}

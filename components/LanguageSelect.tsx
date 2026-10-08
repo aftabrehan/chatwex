@@ -20,15 +20,14 @@ import {
 } from '@/store/store'
 
 function LanguageSelect() {
-  const [language, setLanguage, getLanguages, getNotSupportedLanguages] =
-    useLanguageStore(state => [
-      state.language,
-      state.setLanguage,
-      state.getLanguages,
-      state.getNotSupportedLanguages,
-    ])
+  const language = useLanguageStore((state) => state.language)
+  const setLanguage = useLanguageStore((state) => state.setLanguage)
+  const getLanguages = useLanguageStore((state) => state.getLanguages)
+  const getNotSupportedLanguages = useLanguageStore(
+    (state) => state.getNotSupportedLanguages
+  )
 
-  const subscription = useSubscriptionStore(state => state.subscription)
+  const subscription = useSubscriptionStore((state) => state.subscription)
   const isPro = subscription?.status === 'active'
 
   const pathName = usePathname()
@@ -46,12 +45,12 @@ function LanguageSelect() {
             <LoadingSpinner />
           ) : (
             <>
-              {getLanguages(isPro).map(language => (
+              {getLanguages(isPro).map((language) => (
                 <SelectItem key={language} value={language}>
                   {LanguagesSupportedMap[language]}
                 </SelectItem>
               ))}
-              {getNotSupportedLanguages(isPro).map(language => (
+              {getNotSupportedLanguages(isPro).map((language) => (
                 <Link href={'/register'} key={language} prefetch={false}>
                   <SelectItem
                     key={language}

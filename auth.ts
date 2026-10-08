@@ -1,3 +1,6 @@
+import 'server-only'
+import { requireEnv } from '@/lib/env'
+import { timingSafeEqual } from 'node:crypto'
 import { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
@@ -5,8 +8,9 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { adminAuth, adminDB } from './firebase-admin'
 import { FirestoreAdapter } from '@auth/firebase-adapter'
 
-// @ts-ignore
 export const authOptions: NextAuthOptions = {
+  secret: requireEnv('NEXTAUTH_SECRET'),
+  pages: { signIn: '/login' },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -15,21 +19,38 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        username: { label: 'Username', type: 'text', placeholder: 'johndoe' },
+        email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         const user = {
           id: 'demo_user_id',
-          name: 'John Doe',
-          email: 'johndoe@example.com',
+          name: 'Demo User',
+          email: process.env.DEMO_USER_EMAIL!,
           image:
             'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=72&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8dXNlciUyMHByb2ZpbGV8ZW58MHx8MHx8fDA%3D',
         }
 
-        if (credentials?.password === process.env.DEMO_USER_PASSWORD)
-          return user
-        else return null
+        const expected = process.env.DEMO_USER_PASSWORD
+        if (
+          !expected ||
+          !process.env.DEMO_USER_EMAIL ||
+          credentials?.email !== user.email ||
+          !credentials.password
+        )
+          return null
+        const supplied = Buffer.from(credentials.password)
+        const stored = Buffer.from(expected)
+        if (
+          supplied.length !== stored.length ||
+          !timingSafeEqual(supplied, stored)
+        )
+          return null
+        await adminDB
+          .collection('users')
+          .doc(user.id)
+          .set(user, { merge: true })
+        return user
       },
     }),
   ],
@@ -55,6 +76,5 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
   },
-  // @ts-ignore
   adapter: FirestoreAdapter(adminDB),
 } satisfies NextAuthOptions

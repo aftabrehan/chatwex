@@ -35,7 +35,7 @@ interface LanguageState {
   getNotSupportedLanguages: (isPro: boolean) => LanguagesSupported[]
 }
 
-export const useLanguageStore = create<LanguageState>()((set, get) => ({
+export const useLanguageStore = create<LanguageState>()((set) => ({
   language: 'en',
   setLanguage: (language: LanguagesSupported) => set({ language }),
   getLanguages: (isPro: boolean) => {
@@ -62,7 +62,7 @@ interface SubscriptionState {
   setSubscription: (subscription: Subscription | null) => void
 }
 
-export const useSubscriptionStore = create<SubscriptionState>(set => ({
+export const useSubscriptionStore = create<SubscriptionState>((set) => ({
   subscription: undefined,
   setSubscription: (subscription: Subscription | null) => set({ subscription }),
 }))

@@ -1,5 +1,7 @@
 'use client'
 
+import { useFirebaseReady } from '@/components/FirebaseAuthProvider'
+
 import { useRouter } from 'next/navigation'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { useSession } from 'next-auth/react'
@@ -11,10 +13,11 @@ import { Message, limitedSortedMessagesRef } from '@/lib/converters/Message'
 import { useLanguageStore } from '@/store/store'
 
 function ChatListRow({ chatId }: { chatId: string }) {
+  const firebaseReady = useFirebaseReady()
   const [messages, loading] = useCollectionData<Message>(
-    limitedSortedMessagesRef(chatId)
+    firebaseReady ? limitedSortedMessagesRef(chatId) : undefined
   )
-  const language = useLanguageStore(state => state.language)
+  const language = useLanguageStore((state) => state.language)
   const { data: session } = useSession()
   const router = useRouter()
 
@@ -53,7 +56,9 @@ function ChatListRow({ chatId }: { chatId: string }) {
         </p>
 
         <p className="text-gray-400 line-clamp-1">
-          {message?.translated?.[language] || defaultMessage[language]}
+          {message?.translated?.[language] ||
+            message?.input ||
+            defaultMessage[language]}
         </p>
       </div>
 
@@ -79,8 +84,8 @@ function ChatListRow({ chatId }: { chatId: string }) {
           </div>
         </div>
       )}
-      {messages?.length === 0 && !loading && row()}
-      {messages?.map(message => row(message))}
+      {!messages?.length && !loading && row()}
+      {messages?.map((message) => row(message))}
     </div>
   )
 }

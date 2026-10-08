@@ -20,9 +20,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClientProviders>
-      <html lang="en">
-        <body className="flex flex-col min-h-screen">
+    <html lang="en" suppressHydrationWarning>
+      <body className="flex flex-col min-h-screen">
+        <ClientProviders>
           <FirebaseAuthProvider>
             <SubscriptionProvider>
               <ThemeProvider
@@ -37,8 +37,8 @@ export default function RootLayout({
               </ThemeProvider>
             </SubscriptionProvider>
           </FirebaseAuthProvider>
-        </body>
-      </html>
-    </ClientProviders>
+        </ClientProviders>
+      </body>
+    </html>
   )
 }

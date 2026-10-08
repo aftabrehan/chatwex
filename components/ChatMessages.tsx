@@ -1,6 +1,8 @@
 'use client'
 
-import { createRef, useEffect } from 'react'
+import { useFirebaseReady } from '@/components/FirebaseAuthProvider'
+
+import { useRef, useEffect } from 'react'
 import { Session } from 'next-auth'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { MessageCircleIcon } from 'lucide-react'
@@ -20,11 +22,12 @@ function ChatMessages({
   initialMessages: Message[]
   session: Session | null
 }) {
-  const language = useLanguageStore(state => state.language)
-  const messagesEndRef = createRef<HTMLDivElement>()
+  const firebaseReady = useFirebaseReady()
+  const language = useLanguageStore((state) => state.language)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const [messages, loading] = useCollectionData<Message>(
-    sortedMessagesRef(chatId),
+    firebaseReady ? sortedMessagesRef(chatId) : undefined,
     { initialValue: initialMessages }
   )
 
@@ -32,9 +35,11 @@ function ChatMessages({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, messagesEndRef])
 
+  const visibleMessages = messages ?? initialMessages
+
   return (
     <div className="p-5">
-      {!loading && messages?.length === 0 && (
+      {!loading && visibleMessages.length === 0 && (
         <div className="flex flex-col justify-center text-center items-center p-20 rounded-xl space-y-2 bg-indigo-400 text-white font-extralight">
           <MessageCircleIcon className="h-10 w-10" />
 
@@ -49,7 +54,7 @@ function ChatMessages({
         </div>
       )}
 
-      {messages?.map(message => {
+      {visibleMessages.map((message) => {
         const isSender = message.user.id === session?.user.id
 
         return (
